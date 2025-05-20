@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ByteBrush Links (BBL)
+
+ByteBrush Links (BBL) is an open-source redirection and metadata preview platform developed and maintained by ByteBrush Studios. The service allows users to create custom short links (e.g., `https://aka.bytebrush.dev/service`) that redirect to external destinations with full support for Open Graph (OG) previews.
+
+## Features
+
+- **Custom Short Links**: Create and manage short links with custom slugs
+- **Open Graph Previews**: Add custom metadata for better social media sharing experiences
+- **Admin Dashboard**: View link statistics and manage links through an admin interface
+- **Discord Authentication**: Secure admin access with Discord OAuth
+- **Responsive UI**: Modern, mobile-friendly user interface
+
+## Tech Stack
+
+- **Framework**: Next.js App Router
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js with Discord provider
+- **Styling**: Tailwind CSS
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ and pnpm (or npm/yarn)
+- PostgreSQL database
+- Discord application (for OAuth)
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone https://github.com/bytebrush/bblinks.git
+cd bblinks
+```
+
+2. Install dependencies:
+
+```bash
+bun install
+```
+
+3. Set up environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file with your:
+- PostgreSQL connection string
+- Discord OAuth credentials
+- NextAuth secret
+
+4. Set up the database:
+
+```bash
+bun setup
+# or manually:
+bun prisma db push
+bun prisma generate
+```
+
+5. Run the development server:
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `src/lib/config.ts` to customize:
+- Site name and domain
+- Legal information
+- Admin Discord IDs
 
-## Learn More
+```typescript
+export const config = {
+  siteName: "ByteBrush Links",
+  domain: "https://aka.bytebrush.dev",
+  legalAddress: "Your Legal Address",
+  supportEmail: "your-email@example.com",
+  discordServer: "https://discord.gg/your-discord",
+  adminDiscordIDs: [
+    "your_discord_id_here"
+  ]
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Usage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Creating a Link
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Sign in with Discord (admin only)
+2. Navigate to the Admin Dashboard
+3. Click "Create New Link"
+4. Enter a slug, target URL, and optional metadata
+5. Click "Create Link"
 
-## Deploy on Vercel
+### Managing Links
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Navigate to the Admin Dashboard
+2. Click "Manage Links"
+3. Edit or delete existing links
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+This application can be deployed on any Node.js-compatible platform that supports Next.js applications:
+
+- Vercel
+- Netlify
+- Railway
+- Self-hosted (Docker, etc.)
+
+Make sure to set up your environment variables on your hosting platform.
+
+## Support
+
+For support, please contact us at [support@bytebrush.dev](mailto:support@bytebrush.dev) or join our [Discord server](https://discord.gg/Vv2bdC44Ge).
+
+## License
+
+This project is open source and available under the MIT License.
