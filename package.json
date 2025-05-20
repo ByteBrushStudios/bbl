@@ -1,7 +1,9 @@
 {
   "name": "@bytebrush/bblinks",
+  "description": "Modern, open-source URL shortener with custom link management and Open Graph preview support.",
+  "author": "ByteBrush Studios <https://bytebrush.dev>",
+  "license": "AGPL-3.0-only",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
