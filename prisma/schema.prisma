@@ -17,6 +17,8 @@ model Link {
   updatedAt   DateTime @updatedAt
   visits      Int      @default(0)
   active      Boolean  @default(true)
+  
+  creator     User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -31,6 +33,7 @@ model User {
   
   accounts Account[]
   sessions Session[]
+  links    Link[]
 }
 
 model Account {

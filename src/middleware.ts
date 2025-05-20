@@ -26,9 +26,10 @@ export default auth((req) => {
 });
 
 // See https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-export const middlewareConfig = {
+export const config = {
   matcher: [
     "/admin/:path*",
     "/auth/signin",
+    "/api/links/:path*"
   ],
 };

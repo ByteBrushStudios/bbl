@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ByteBrush Studio Theme */
+  --background: #0c1120;
+  --foreground: #ffffff;
+  --primary: #22c55e;
+  --primary-hover: #16a34a;
+  --secondary: #111827;
+  --tertiary: #1f2937;
+  --accent: #3b82f6;
 }
 
 @theme inline {
@@ -12,15 +18,35 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+/* ByteBrush Studios special styling */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600;
+}
+
+.btn-primary {
+  @apply px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white transition-all duration-300 transform hover:scale-105 font-medium;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all duration-300 transform hover:scale-105 font-medium;
+}
+
+.nav-link {
+  @apply font-medium hover:text-green-400 transition-colors;
+}
+
+.card {
+  @apply bg-slate-900 rounded-lg border border-slate-800 overflow-hidden shadow-xl;
+}
+
+/* Code-like styling similar to ByteBrush site */
+.code-block {
+  @apply bg-slate-900 p-4 rounded-lg border border-slate-800 font-mono text-sm text-white;
 }

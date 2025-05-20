@@ -5,7 +5,8 @@ export const siteConfig = {
   supportEmail: "support@bytebrush.dev",
   discordServer: "https://discord.gg/Vv2bdC44Ge",
   adminDiscordIDs: [
-    "123456789012345678",
-    "987654321098765432"
-  ]
+    "510065483693817867",
+    "896951964234043413"
+  ],
+  enableHomepage: true,
 }

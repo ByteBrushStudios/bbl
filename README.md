@@ -104,6 +104,8 @@ Edit `src/lib/config.ts` to customize:
 - Site name and domain
 - Legal information
 - Admin Discord IDs
+- Homepage visibility
+- GitHub repository URL
 
 ```typescript
 export const siteConfig = {
@@ -114,7 +116,11 @@ export const siteConfig = {
   discordServer: "https://discord.gg/your-discord",
   adminDiscordIDs: [
     "your_discord_id_here"
-  ]
+  ],
+  // When enableHomepage is false, users are redirected to sign-in or admin dashboard
+  enableHomepage: true,
+  // GitHub repository URL for the open-source project
+  githubRepo: "https://github.com/YourOrg/bblinks"
 }
 ```
 

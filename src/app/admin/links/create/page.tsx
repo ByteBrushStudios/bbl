@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { z } from 'zod';
+import { AlertCircle, Link2, ExternalLink, FileImage, Type, FileText, Loader, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const linkSchema = z.object({
   slug: z.string().min(1, 'Slug is required').regex(/^[a-zA-Z0-9-_]+$/, 'Slug can only contain letters, numbers, hyphens, and underscores'),
@@ -30,7 +32,23 @@ export default function CreateLinkPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [isFormValid, setIsFormValid] = useState(false);
+  
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
@@ -49,7 +67,20 @@ export default function CreateLinkPage() {
         [name]: value,
       });
     }
+    
+    // Clear any previous error when user types
+    setError(null);
   };
+  
+  // Validate form whenever formData changes
+  useEffect(() => {
+    try {
+      linkSchema.parse(formData);
+      setIsFormValid(true);
+    } catch (err) {
+      setIsFormValid(false);
+    }
+  }, [formData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,48 +127,95 @@ export default function CreateLinkPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Create New Link</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+  };  return (
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            <span className="gradient-text">Create New Link</span>
+          </h1>
+          
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link
+              href="/admin/links"
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors duration-300"
+            >
+              <ArrowLeft size={16} />
+              Back to links
+            </Link>
+          </motion.div>
+        </div>
+        <p className="text-slate-300 text-sm sm:text-base">
           Create a new short link with optional metadata for Open Graph previews.
         </p>
-      </div>
+      </motion.div>
+      
+      <AnimatePresence>
+        {error && (
+          <motion.div 
+            className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-md"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className="flex items-center">
+              <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base">{error}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
+      <motion.div 
+        className="card p-4 sm:p-6 shadow-lg"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label htmlFor="slug" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          <motion.div 
+            className="grid grid-cols-1 gap-6"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div variants={item}>
+              <label htmlFor="slug" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                <Link2 size={14} />
                 Slug *
               </label>
-              <input
-                type="text"
-                id="slug"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
-                placeholder="e.g., my-link"
-                required
-              />
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  /
+                </span>
+                <input
+                  type="text"
+                  id="slug"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleChange}
+                  className="w-full pl-6 pr-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
+                  placeholder="e.g., my-link"
+                  required
+                />
+              </div>
+              <p className="mt-2 text-xs sm:text-sm text-slate-400">
                 This will be used in the URL: https://aka.bytebrush.dev/
-                <span className="font-medium">{formData.slug || 'my-link'}</span>
+                <span className="text-green-400 font-medium">{formData.slug || 'my-link'}</span>
               </p>
-            </div>
-
-            <div>
-              <label htmlFor="targetUrl" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            </motion.div>
+            
+            <motion.div variants={item}>
+              <label htmlFor="targetUrl" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                <ExternalLink size={14} />
                 Target URL *
               </label>
               <input
@@ -146,24 +224,31 @@ export default function CreateLinkPage() {
                 name="targetUrl"
                 value={formData.targetUrl}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                 placeholder="https://example.com"
                 required
               />
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-xs sm:text-sm text-slate-400">
                 The destination URL where users will be redirected.
               </p>
-            </div>
-
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-              <h2 className="text-lg font-medium mb-4">OpenGraph Metadata (Optional)</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                This information will be displayed when the link is shared on social media.
+            </motion.div>
+            
+            <motion.div 
+              variants={item}
+              className="border-t border-slate-700 pt-6 mt-2"
+            >
+              <h2 className="text-lg font-medium mb-4 text-white flex items-center gap-2">
+                <span className="gradient-text">OpenGraph Metadata</span> 
+                <span className="text-slate-400 text-sm">(Optional)</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mb-6">
+                This information will be displayed when the link is shared on social media platforms.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="metadata.title" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.title" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <Type size={14} />
                     Title
                   </label>
                   <input
@@ -172,13 +257,14 @@ export default function CreateLinkPage() {
                     name="metadata.title"
                     value={formData.metadata?.title || ''}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="My Awesome Link"
                   />
                 </div>
-
+                
                 <div>
-                  <label htmlFor="metadata.description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.description" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <FileText size={14} />
                     Description
                   </label>
                   <textarea
@@ -187,13 +273,14 @@ export default function CreateLinkPage() {
                     value={formData.metadata?.description || ''}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="A brief description of where this link leads"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="metadata.image" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.image" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <FileImage size={14} />
                     Image URL
                   </label>
                   <input
@@ -202,31 +289,46 @@ export default function CreateLinkPage() {
                     name="metadata.image"
                     value={formData.metadata?.image || ''}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex justify-end space-x-4 pt-4">
-              <Link
-                href="/admin/links"
-                className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                Cancel
-              </Link>
-              <button
+            <motion.div 
+              variants={item}
+              className="flex flex-col sm:flex-row justify-end gap-4 pt-6 mt-2 border-t border-slate-700"
+            >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  href="/admin/links"
+                  className="w-full sm:w-auto px-6 py-2 border border-slate-700 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all duration-300 flex items-center justify-center"
+                >
+                  Cancel
+                </Link>
+              </motion.div>
+              
+              <motion.button
                 type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50"
+                disabled={loading || !isFormValid}
+                className="w-full sm:w-auto px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-all duration-300 disabled:opacity-50 disabled:hover:bg-green-500 disabled:cursor-not-allowed font-medium flex items-center justify-center"
+                whileHover={!loading && isFormValid ? { scale: 1.05 } : {}}
+                whileTap={!loading && isFormValid ? { scale: 0.95 } : {}}
               >
-                {loading ? 'Creating...' : 'Create Link'}
-              </button>
-            </div>
-          </div>
+                {loading ? (
+                  <span className="flex items-center">
+                    <div className="animate-spin -ml-1 mr-2 h-4 w-4 text-white">
+                      <Loader size={16} />
+                    </div>
+                    Creating...
+                  </span>
+                ) : 'Create Link'}
+              </motion.button>
+            </motion.div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }
