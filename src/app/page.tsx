@@ -1,24 +1,30 @@
-import { auth } from "@/auth";
-import HomePage from "./page.client";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
 import { siteConfig } from "@/lib/config";
-import { redirect } from "next/navigation";
+import Header from "@/components/static/Header";
+import HeroSection from "@/components/sections/HeroSection";
+import FeaturesSection from "@/components/sections/FeaturesSection";
+import HowItWorksSection from "@/components/sections/HowItWorksSection";
+import OpenSourceCallout from "@/components/sections/OpenSourceCallout";
+import Footer from "@/components/static/Footer";
 
-export default async function Home() {
-  const session = await auth();
+export default async function HomePage() {
+  // Get session using NextAuth v4 method
+  const session = await getServerSession();
   const isAdmin = session?.user?.isAdmin || false;
 
-  // If homepage is disabled, redirect to appropriate location
-  if (!siteConfig.enableHomepage) {
-    if (session) {
-      // Redirect to admin dashboard if user is admin
-      if (isAdmin) {
-        redirect("/admin");
-      }
-      // Otherwise, redirect to sign-in page
-    } else {
-      redirect("/api/auth/signin");
-    }
-  }
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header isAdmin={isAdmin} session={session} />
 
-  return <HomePage session={session} isAdmin={isAdmin} />;
+      <main className="flex-1">
+        <HeroSection isAdmin={isAdmin} />
+        <FeaturesSection />
+        <HowItWorksSection />
+        <OpenSourceCallout />
+      </main>
+
+      <Footer />
+    </div>
+  );
 }

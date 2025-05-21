@@ -20,8 +20,7 @@ export default function SignInPage() {
             <span className="gradient-text">{siteConfig.siteName}</span>
           </h1>
           <p className="text-slate-400 mt-2">Sign in with Discord to continue</p>
-        </div>
-          <Link 
+        </div>          <Link 
           href="/api/auth/signin/discord" 
           className="w-full flex items-center justify-center gap-3 bg-[#5865F2] text-white py-4 px-6 rounded-md hover:bg-[#4752c4] transition-all duration-300 transform hover:scale-105"
         >

@@ -1,4 +1,5 @@
-import { GET, POST } from "@/auth";
+import NextAuth from "@/auth";
 
 // Export Next Auth API route handlers
-export { GET, POST };
+export const GET = NextAuth;
+export const POST = NextAuth;

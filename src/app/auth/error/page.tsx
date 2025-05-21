@@ -45,8 +45,7 @@ export default function AuthErrorPage({
           </h1>
           <p className="text-slate-400">{getErrorMessage()}</p>
         </div>
-          <div className="flex flex-col gap-4 mt-6">
-          <Link 
+          <div className="flex flex-col gap-4 mt-6">          <Link 
             href="/api/auth/signin/discord" 
             className="w-full flex items-center justify-center gap-2 bg-[#5865F2] text-white py-3 px-4 rounded-md hover:bg-[#4752c4] transition-colors"
           >
