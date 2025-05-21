@@ -1,216 +1,130 @@
-# ByteBrush Links (BBL)
+# ByteBrush Links - Self-Hosted Link Management Platform
 
-ByteBrush Links (BBL) is an open-source redirection and metadata preview platform developed and maintained by ByteBrush Studios. The service allows users to create custom short links (e.g., `https://aka.bytebrush.dev/service`) that redirect to external destinations with full support for Open Graph (OG) previews.
+ByteBrush Links is a modern, self-hosted link management platform that allows you to create and manage branded short links with your own domain. It includes powerful features like custom metadata for social media previews, analytics, and team collaboration.
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+![ByteBrush Links Dashboard](public/docs/dashboard-preview.png)
 
 ## Features
 
-- **Custom Short Links**: Create and manage short links with custom slugs
-- **Open Graph Previews**: Add custom metadata for better social media sharing experiences
-- **Admin Dashboard**: View link statistics and manage links through an admin interface
-- **Discord Authentication**: Secure admin access with Discord OAuth
-- **Responsive UI**: Modern, mobile-friendly user interface
-
-## Tech Stack
-
-- **Framework**: Next.js App Router
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js with Discord provider
-- **Styling**: Tailwind CSS
-
-## Project Structure
-
-For a detailed breakdown of the project structure, please see [STRUCTURE.md](STRUCTURE.md).
+- 🔗 **Custom Short Links**: Create branded short links with your own domain
+- 🖼️ **Rich Metadata**: Add titles, descriptions, and images for social media previews
+- 📊 **Analytics**: Track link performance with built-in analytics
+- 👥 **Team Collaboration**: Invite team members to manage links together
+- 🔒 **Access Control**: Role-based permissions (Admin, User)
+- 🌐 **Domain Restrictions**: Limit access to specific email domains
+- 🚀 **Fast & Lightweight**: Optimized for performance
+- 🎨 **Customizable**: Configure to match your brand
+- 🔧 **Self-Hosted**: Full control over your data and infrastructure
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and [Bun](https://bun.sh/) (recommended package manager)
+- Node.js 18+ and npm
 - PostgreSQL database
-- Discord application (for OAuth)
+- (Optional) Docker for containerized deployment
 
 ### Installation
 
 1. Clone the repository:
-
-```bash
-git clone https://github.com/bytebrush/bblinks.git
-cd bblinks
-```
+   ```bash
+   git clone https://github.com/ByteBrushStudios/bbl.git
+   cd bbl
+   ```
 
 2. Install dependencies:
-
-```bash
-bun install
-```
+   ```bash
+   npm install
+   ```
 
 3. Set up environment variables:
-
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file with your:
-- PostgreSQL connection string
-- Discord OAuth credentials
-- NextAuth secret
-
-Required environment variables:
-```
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/bblinks"
-
-# Next Auth
-NEXTAUTH_SECRET="your-nextauth-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Discord OAuth
-DISCORD_CLIENT_ID="your-discord-client-id"
-DISCORD_CLIENT_SECRET="your-discord-client-secret"
-```
-
-For Windows users, you can generate a secure NEXTAUTH_SECRET with PowerShell:
-```powershell
-[Convert]::ToBase64String((New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes(32))
-```
-
-For Unix-based systems:
-```bash
-openssl rand -base64 32
-```
+   - Copy `.env.example` to `.env`
+   - Update the variables with your configuration
 
 4. Set up the database:
+   ```bash
+   npx prisma db push
+   npx prisma db seed
+   ```
+
+5. Build and start the application:
+   ```bash
+   npm run build
+   npm start
+   ```
+
+### Docker Deployment
 
 ```bash
-bun setup
-# or manually:
-bun prisma db push
-bun prisma generate
+docker-compose up -d
 ```
 
-5. Run the development server:
+## Configuration
+
+ByteBrush Links is designed to be highly configurable. All settings are stored in the database and can be configured through environment variables or the admin panel.
+
+### Core Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `siteName` | Name of your link service | ByteBrush Links |
+| `domain` | Your service's domain | https://aka.bytebrush.dev |
+| `company` | Your company name | ByteBrush Studios |
+| `supportEmail` | Support email address | support@bytebrush.dev |
+| `allowedDomains` | List of allowed email domains | ["bytebrush.dev"] |
+| `enableBasePages` | Enable public landing pages | true |
+
+### Link Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `redirectDelay` | Delay in seconds before redirecting | 0 |
+| `trackingPixelEnabled` | Enable tracking pixel for analytics | true |
+| `defaultLinkActive` | Default status for new links | true |
+
+## Authentication
+
+Authentication is handled via NextAuth.js. You can configure various auth providers in the `.env` file.
+
+Currently supported authentication methods:
+- Credentials (email/password)
+
+## Development
 
 ```bash
-bun dev
+# Run development server
+npm run dev
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
-
-### Configuration
-
-Edit `src/lib/config.ts` to customize:
-- Site name and domain
-- Legal information
-- Admin Discord IDs
-- Homepage visibility
-- GitHub repository URL
-
-```typescript
-export const siteConfig = {
-  siteName: "ByteBrush Links",
-  domain: "https://aka.bytebrush.dev",
-  legalAddress: "Your Legal Address",
-  supportEmail: "your-email@example.com",
-  discordServer: "https://discord.gg/your-discord",
-  adminDiscordIDs: [
-    "your_discord_id_here"
-  ],
-  // When enableHomepage is false, users are redirected to sign-in or admin dashboard
-  enableHomepage: true,
-  // GitHub repository URL for the open-source project
-  githubRepo: "https://github.com/YourOrg/bblinks"
-}
-```
-
-## Usage
-
-### Creating a Link
-
-1. Sign in with Discord (admin only)
-2. Navigate to the Admin Dashboard
-3. Click "Create New Link"
-4. Enter a slug, target URL, and optional metadata
-5. Click "Create Link"
-
-### Managing Links
-
-1. Navigate to the Admin Dashboard
-2. Click "Manage Links"
-3. Edit or delete existing links
-
-## Deployment
-
-This application can be deployed on any Node.js-compatible platform that supports Next.js applications:
-
-### Vercel (Recommended)
-
-1. Connect your GitHub repository to Vercel
-2. Set up required environment variables
-3. Deploy with default Next.js settings
-
-### Self-Hosted with Docker
-
-1. Create a Dockerfile in the root directory:
-
-```dockerfile
-FROM oven/bun:1 as builder
-WORKDIR /app
-COPY . .
-RUN bun install
-RUN bun run build
-
-FROM oven/bun:1-slim as runner
-WORKDIR /app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/prisma ./prisma
-
-ENV NODE_ENV=production
-
-CMD ["bun", "prisma", "generate", "&&", "bun", "start"]
-EXPOSE 3000
-```
-
-2. Build and run the Docker container:
-
-```bash
-docker build -t bytebrush-links .
-docker run -p 3000:3000 --env-file .env bytebrush-links
-```
-
-### Other Platforms
-
-- Netlify: Use the Netlify adapter for Next.js
-- Railway: Deploy directly from GitHub with environment variable configuration
-
-Make sure to set up your environment variables on your hosting platform.
-
-## Support
-
-For support, please contact us at [support@bytebrush.dev](mailto:support@bytebrush.dev) or join our [Discord server](https://discord.gg/Vv2bdC44Ge).
 
 ## Contributing
 
-We welcome contributions to ByteBrush Links! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE). This means:
-
-- You can use, modify, and distribute this software
-- If you modify the software, you must disclose the source code
-- If you run a modified version on a server and allow users to interact with it, you must make your modifications available
-- Any derivative work must also be licensed under AGPL-3.0
+This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
 
-- [Next.js](https://nextjs.org/) - The React framework used
-- [Prisma](https://prisma.io/) - ORM for database access
-- [NextAuth.js](https://next-auth.js.org/) - Authentication library
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Next.js](https://nextjs.org/)
+- [Prisma](https://www.prisma.io/)
+- [NextAuth.js](https://next-auth.js.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Lucide Icons](https://lucide.dev/)
 
-For more details, see the [LICENSE](LICENSE) file or visit the [AGPL-3.0 license page](https://www.gnu.org/licenses/agpl-3.0.en.html).
+---
+
+Made with ❤️ by [ByteBrush Studios](https://bytebrush.dev)

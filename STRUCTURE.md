@@ -51,4 +51,9 @@ The project uses Prisma with PostgreSQL. The main models are:
 
 ## Authentication Flow
 
-Authentication is handled through NextAuth.js with Discord as the OAuth provider. Only users with Discord IDs listed in the `adminDiscordIDs` array in `config.ts` are granted admin access.
+Authentication is handled through NextAuth.js with Discord as the OAuth provider. Admin access can be granted in multiple ways:
+
+1. A super admin can be designated by Discord ID using `auth.superAdminDiscordId` in `config.ts`
+2. A super admin can be designated by email using `auth.superAdminEmail` in `config.ts`
+
+Additionally, email-based access can be restricted to specific domains using the `auth.allowedEmailDomains` array in `config.ts`.

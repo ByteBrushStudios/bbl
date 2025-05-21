@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteConfig } from "@/lib/config";
 import Link from "next/link";
+import { SessionProvider } from "@/components/SessionProvider";
+import { ToastProvider } from '@/components/ui/Toast';
+import { SettingsProvider } from '@/components/providers/SettingsProvider';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,9 +35,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0c1120]`}
       >
-        <div className="flex flex-col min-h-screen">
-          {children}
-        </div>
+        <SessionProvider>
+          <ToastProvider>
+            <SettingsProvider>
+              <div className="flex flex-col min-h-screen">
+                {children}
+              </div>
+            </SettingsProvider>
+          </ToastProvider>
+        </SessionProvider>
       </body>
     </html>
   );

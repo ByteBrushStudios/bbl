@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { z } from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  AlertCircle, Link2, ExternalLink, FileImage, Type,
+  FileText, Loader, ArrowLeft, Save, Trash2, ToggleLeft, ToggleRight
+} from 'lucide-react';
 
 type LinkData = {
   id: string;
@@ -35,7 +40,7 @@ type FormData = z.infer<typeof linkSchema>;
 export default function EditLinkPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
-  
+
   const [link, setLink] = useState<LinkData | null>(null);
   const [formData, setFormData] = useState<FormData>({
     slug: '',
@@ -50,16 +55,18 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showAlert, setShowAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     async function fetchLink() {
       try {
+        setLoading(true);
         const response = await fetch(`/api/links/${id}`);
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch link data');
         }
-        
+
         const data = await response.json();
         setLink(data);
         setFormData({
@@ -79,13 +86,13 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
         setLoading(false);
       }
     }
-    
+
     fetchLink();
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    
+
     if (name.startsWith('metadata.')) {
       const metadataField = name.split('.')[1];
       setFormData({
@@ -140,9 +147,19 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
         throw new Error(data.message || 'Failed to update link');
       }
 
-      // Redirect to the links page
-      router.push('/admin/links');
-      router.refresh();
+      // Show success message
+      setShowAlert({
+        message: 'Link updated successfully!',
+        type: 'success'
+      });
+
+      // Clear the alert after 3 seconds
+      setTimeout(() => {
+        setShowAlert(null);
+        // Redirect to the links page
+        router.push('/admin/links');
+        router.refresh();
+      }, 2000);
     } catch (err) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
@@ -156,11 +173,32 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
     }
   };
 
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="flex justify-center items-center h-64">
-          <p className="text-slate-600 dark:text-slate-400">Loading link data...</p>
+      <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            <span className="gradient-text">Edit Link</span>
+          </h1>
+        </div>
+        <div className="card flex justify-center items-center h-64">
+          <div className="loader"></div>
         </div>
       </div>
     );
@@ -168,60 +206,153 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
 
   if (error && !link) {
     return (
-      <div className="p-8">
-        <div className="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded mb-4">
-          {error}
+      <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-md flex items-center">
+          <AlertCircle size={20} className="mr-2 flex-shrink-0" />
+          <span>{error}</span>
         </div>
-        <Link
-          href="/admin/links"
-          className="text-blue-600 hover:underline"
-        >
-          Back to Links
-        </Link>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link
+            href="/admin/links"
+            className="btn-primary flex items-center gap-2"
+          >
+            <ArrowLeft size={16} />
+            Back to Links
+          </Link>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Edit Link</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          Update the link details and Open Graph metadata.
-        </p>
-      </div>
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto">
+      {/* Custom Alert/Toast Component */}
+      <AnimatePresence>
+        {showAlert && (
+          <motion.div
+            className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg flex items-center gap-2 ${showAlert.type === 'success'
+                ? 'bg-green-500/90 text-white border border-green-600'
+                : 'bg-red-500/90 text-white border border-red-600'
+              }`}
+            initial={{ opacity: 0, y: -20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -20, x: 20 }}
+          >
+            {showAlert.type === 'success' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            ) : (
+              <AlertCircle size={20} />
+            )}
+            <span>{showAlert.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded">
-          {error}
+      <motion.div
+        className="mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            <span className="gradient-text">Edit Link</span>
+          </h1>
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/admin/links"
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors duration-300"
+            >
+              <ArrowLeft size={16} />
+              Back to links
+            </Link>
+          </motion.div>
         </div>
-      )}
+        <p className="text-slate-300 text-sm sm:text-base">
+          Update link details and optional metadata for Open Graph previews.
+        </p>
+      </motion.div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-6">
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-md"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className="flex items-center">
+              <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base">{error}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className="card p-4 sm:p-6 shadow-lg"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        {link && (
+          <div className="flex justify-between items-center mb-6 bg-slate-800/50 p-3 rounded-md border border-slate-700">
             <div>
-              <label htmlFor="slug" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Slug *
-              </label>
-              <input
-                type="text"
-                id="slug"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
-                placeholder="e.g., my-link"
-                required
-              />
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                This will be used in the URL: https://aka.bytebrush.dev/
-                <span className="font-medium">{formData.slug || 'my-link'}</span>
+              <p className="text-sm text-slate-400">Link Stats</p>
+              <p className="text-lg font-medium text-white flex items-center gap-2">
+                <span className="text-green-400">{link.visits}</span> visits since {new Date(link.createdAt).toLocaleDateString()}
               </p>
             </div>
+            <Link
+              href={`/${link.slug}`}
+              target="_blank"
+              className="text-green-400 hover:text-green-300 transition-colors"
+            >
+              <ExternalLink size={20} />
+            </Link>
+          </div>
+        )}
 
-            <div>
-              <label htmlFor="targetUrl" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <form onSubmit={handleSubmit}>
+          <motion.div
+            className="grid grid-cols-1 gap-6"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div variants={item}>
+              <label htmlFor="slug" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                <Link2 size={14} />
+                Slug *
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  /
+                </span>
+                <input
+                  type="text"
+                  id="slug"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleChange}
+                  className="w-full pl-6 pr-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
+                  placeholder="e.g., my-link"
+                  required
+                />
+              </div>
+              <p className="mt-2 text-xs sm:text-sm text-slate-400">
+                This will be used in the URL: https://aka.bytebrush.dev/
+                <span className="text-green-400 font-medium">{formData.slug || 'my-link'}</span>
+              </p>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <label htmlFor="targetUrl" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                <ExternalLink size={14} />
                 Target URL *
               </label>
               <input
@@ -230,43 +361,61 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
                 name="targetUrl"
                 value={formData.targetUrl}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                 placeholder="https://example.com"
                 required
               />
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-xs sm:text-sm text-slate-400">
                 The destination URL where users will be redirected.
               </p>
-            </div>
+            </motion.div>
 
-            <div>
-              <div className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  id="active"
-                  name="active"
-                  checked={formData.active}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
-                />
-                <label htmlFor="active" className="ml-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Active
-                </label>
+            <motion.div variants={item}>
+              <label className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                Link Status
+              </label>
+              <div
+                className="flex items-center cursor-pointer mt-2 gap-2"
+                onClick={() => setFormData({ ...formData, active: !formData.active })}
+              >
+                <div className={`relative inline-block w-12 h-6 rounded-full transition-colors duration-300 ${formData.active ? 'bg-green-500' : 'bg-slate-700'}`}>
+                  <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${formData.active ? 'transform translate-x-6' : ''}`}></div>
+                </div>
+                <span className={`text-sm ${formData.active ? 'text-green-400' : 'text-slate-400'}`}>
+                  {formData.active ? (
+                    <span className="flex items-center gap-1">
+                      <ToggleRight size={16} className="text-green-400" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <ToggleLeft size={16} className="text-slate-400" />
+                      Inactive
+                    </span>
+                  )}
+                </span>
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-xs sm:text-sm text-slate-400">
                 When inactive, the link will return a 404 error instead of redirecting.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-              <h2 className="text-lg font-medium mb-4">OpenGraph Metadata (Optional)</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                This information will be displayed when the link is shared on social media.
+            <motion.div
+              variants={item}
+              className="border-t border-slate-700 pt-6 mt-2"
+            >
+              <h2 className="text-lg font-medium mb-4 text-white flex items-center gap-2">
+                <span className="gradient-text">OpenGraph Metadata</span>
+                <span className="text-slate-400 text-sm">(Optional)</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mb-6">
+                This information will be displayed when the link is shared on social media platforms.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="metadata.title" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.title" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <Type size={14} />
                     Title
                   </label>
                   <input
@@ -275,13 +424,14 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
                     name="metadata.title"
                     value={formData.metadata?.title || ''}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="My Awesome Link"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="metadata.description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.description" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <FileText size={14} />
                     Description
                   </label>
                   <textarea
@@ -290,13 +440,14 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
                     value={formData.metadata?.description || ''}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="A brief description of where this link leads"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="metadata.image" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="metadata.image" className="flex items-center gap-2 text-sm font-medium text-green-400 mb-1">
+                    <FileImage size={14} />
                     Image URL
                   </label>
                   <input
@@ -305,40 +456,67 @@ export default function EditLinkPage({ params }: { params: { id: string } }) {
                     name="metadata.image"
                     value={formData.metadata?.image || ''}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800"
+                    className="w-full px-4 py-2 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-slate-800/50 text-white transition-all duration-300"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex justify-between space-x-4 pt-4">
-              <Link
-                href={`/admin/links/${id}/delete`}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+            <motion.div
+              variants={item}
+              className="flex flex-col sm:flex-row justify-between gap-4 pt-6 mt-2 border-t border-slate-700"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="order-2 sm:order-1"
               >
-                Delete Link
-              </Link>
-              
-              <div className="flex space-x-4">
                 <Link
-                  href="/admin/links"
-                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  href={`/admin/links/${id}/delete`}
+                  className="w-full sm:w-auto px-6 py-2 border border-red-800/30 bg-red-900/20 rounded-md text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  Cancel
+                  <Trash2 size={16} />
+                  Delete Link
                 </Link>
-                <button
+              </motion.div>
+
+              <div className="flex flex-col sm:flex-row gap-4 order-1 sm:order-2">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    href="/admin/links"
+                    className="w-full sm:w-auto px-6 py-2 border border-slate-700 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all duration-300 flex items-center justify-center"
+                  >
+                    Cancel
+                  </Link>
+                </motion.div>
+
+                <motion.button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-all duration-300 disabled:opacity-50 disabled:hover:bg-green-500 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                  whileHover={!saving ? { scale: 1.05 } : {}}
+                  whileTap={!saving ? { scale: 0.95 } : {}}
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                  {saving ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin h-4 w-4 text-white">
+                        <Loader size={16} />
+                      </div>
+                      Saving...
+                    </span>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      Save Changes
+                    </>
+                  )}
+                </motion.button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }
