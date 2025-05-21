@@ -1,15 +1,34 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Github, ExternalLink, Code } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { siteConfig } from "@/lib/config";
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 export default function HeroSection({ isAdmin = false }) {
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const y = useTransform(scrollY, [0, 300], [0, -100]);
+  const [githubRepo, setGithubRepo] = useState('https://github.com/ByteBrushStudios/bbl');
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.githubRepo) {
+            setGithubRepo(data.githubRepo);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+      }
+    }
+
+    fetchSettings();
+  }, []);
 
   const container = {
     hidden: { opacity: 0 },
@@ -71,7 +90,7 @@ export default function HeroSection({ isAdmin = false }) {
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <a
-                  href={siteConfig.githubRepo}
+                  href={githubRepo}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-400 transition-colors rounded-full bg-slate-800 hover:bg-slate-700"
@@ -146,7 +165,7 @@ export default function HeroSection({ isAdmin = false }) {
 
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <a
-              href="https://github.com/ByteBrushStudios/bbl"
+              href={githubRepo}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-3 text-lg btn-secondary"
@@ -155,52 +174,6 @@ export default function HeroSection({ isAdmin = false }) {
               Star on GitHub
             </a>
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="max-w-4xl p-4 mx-auto mt-12 overflow-x-auto border rounded-lg md:mt-16 sm:p-6 bg-slate-800/30 border-slate-700 glass-panel"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <div className="text-xs text-slate-400">bytebrush-links.js</div>
-          </div>
-          <div className="text-left code-block">
-            <div className="mb-2 text-slate-400 flex items-center gap-1.5">
-              <Code size={14} />
-              <span>// Creating a branded link with ByteBrush Links</span>
-            </div>
-            <motion.div
-              variants={container}
-              initial="hidden"
-              animate="show"
-            >
-              <motion.div variants={item} className="text-green-400">function</motion.div> <motion.span variants={item} className="text-blue-400">createBrandedLink</motion.span>() {'{'
-              }
-              <motion.div variants={item} className="pl-4 text-slate-300">
-                <span className="text-orange-300">const</span> link = {'{'}
-              </motion.div>
-              <motion.div variants={item} className="pl-8">
-                <div><span className="text-purple-400">slug</span>: <span className="text-green-300">"launch"</span>,</div>
-                <div><span className="text-purple-400">targetUrl</span>: <span className="text-green-300">"https://example.com/launch-landing-page"</span>,</div>
-                <div><span className="text-purple-400">metadata</span>: {'{'}</div>
-                <div className="pl-4"><span className="text-purple-400">title</span>: <span className="text-green-300">"New Product Launch"</span>,</div>
-                <div className="pl-4"><span className="text-purple-400">description</span>: <span className="text-green-300">"Join us for our exclusive product launch event"</span>,</div>
-                <div className="pl-4"><span className="text-purple-400">image</span>: <span className="text-green-300">"https://example.com/images/launch.jpg"</span></div>
-                <div>{'}'}</div>
-              </motion.div>
-              <motion.div variants={item} className="pl-4">{'}'}</motion.div>
-              <motion.div variants={item} className="pl-4"><span className="text-yellow-400">return</span> <span className="text-green-300">"https://links.yourbrand.com/launch"</span>;</motion.div>
-              <motion.div variants={item}>{'}'}
-              </motion.div>
-            </motion.div>
-          </div>
         </motion.div>
 
         <motion.p

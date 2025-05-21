@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from "react";
-import { siteConfig } from "@/lib/config";
 import Link from "next/link";
-import { ArrowLeft, FileText, LogIn, Eye, EyeOff, Mail, Lock, Info as InfoIcon } from "lucide-react";
+import { ArrowLeft, LogIn, Eye, EyeOff, Mail, Lock, Info as InfoIcon } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthLayout from "@/components/layouts/auth/AuthLayout";
 import Image from "next/image";
+import { useSettings } from "@/hooks/useSettings";
 
 export default function SignInPage() {
     const [email, setEmail] = useState("");
@@ -17,6 +17,7 @@ export default function SignInPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const { settings, loading } = useSettings();
 
     const handleEmailSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,9 +60,9 @@ export default function SignInPage() {
 
     return (
         <AuthLayout
-            title={siteConfig.siteName}
+            title={settings.siteName}
             subtitle="Sign in to continue"
-            icon={<Image src="/bytebrush/logo.png" alt="Logo" width={64} height={64} className="w-16 h-16" />}
+            icon={<Image src={settings.logoUrl} alt="Logo" width={64} height={64} className="w-16 h-16" />}
         >
             <AnimatePresence>
                 {error && (
@@ -146,7 +147,7 @@ export default function SignInPage() {
                     <p className="flex items-start gap-2">
                         <InfoIcon size={16} className="mt-0.5 flex-shrink-0" />
                         <span>
-                            <strong>Authentication Notice:</strong> Access to {siteConfig.siteName} is restricted to {siteConfig.company} team members with authorized email domains ({siteConfig.allowedDomains.join(", ")}).
+                            <strong>Authentication Notice:</strong> Access to {settings.siteName} is restricted to {settings.company} team members with authorized email domains ({settings.allowedDomains.join(", ")}).
                         </span>
                     </p>
                 </div>

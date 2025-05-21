@@ -1,12 +1,31 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import { Download, Paintbrush, Bookmark } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { siteConfig } from "@/lib/config";
 import { Github } from "lucide-react";
 
 export default function HowItWorksSection() {
   const { scrollYProgress } = useScroll();
+  const [githubRepo, setGithubRepo] = useState('https://github.com/ByteBrushStudios/bbl');
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.githubRepo) {
+            setGithubRepo(data.githubRepo);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+      }
+    }
+
+    fetchSettings();
+  }, []);
 
   // Animation for the vertical line connecting steps
   const lineHeight = useTransform(scrollYProgress, [0.5, 0.8], ["0%", "100%"]);
@@ -222,7 +241,7 @@ export default function HowItWorksSection() {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
             <a
-              href={siteConfig.githubRepo}
+              href={githubRepo}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary px-6 py-3 text-lg inline-flex items-center gap-2"

@@ -1,14 +1,36 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import { FileText, Heart, Github, Mail, MessageCircle } from "lucide-react";
 import { FaDiscord } from "react-icons/fa";
-import { siteConfig } from "@/lib/config";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { getSettings } from "@/lib/settings";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const [settings, setSettings] = useState({
+        supportEmail: 'support@bytebrush.dev',
+        discordServer: 'https://discord.gg/Vv2bdC44Ge',
+        company: 'ByteBrush Studios'
+    });
+
+    useEffect(() => {
+        async function fetchSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                if (response.ok) {
+                    const data = await response.json();
+                    setSettings(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch settings:', error);
+            }
+        }
+
+        fetchSettings();
+    }, []);
 
     return (
         <footer className="py-8 mt-auto border-t bg-slate-900/60 border-slate-800 backdrop-blur-sm">
@@ -25,7 +47,7 @@ export default function Footer() {
                         </div>
                         <div>
                             <p className="flex items-center text-sm text-slate-400">
-                                © {currentYear} ByteBrush Studios. All rights reserved.
+                                © {currentYear} {settings.company}. All rights reserved.
                             </p>
                             <p className="mt-1 text-xs text-slate-500">
                                 Made with <Heart size={12} className="inline mx-1 text-green-500" /> by <Link href="https://codemeapixel.dev" className="text-green-400 transition-colors hover:text-green-500" target="_blank">Pixelated</Link>.
@@ -40,7 +62,7 @@ export default function Footer() {
                         transition={{ duration: 0.5, delay: 0.1 }}
                     >
                         <Link
-                            href={siteConfig.discordServer}
+                            href="https://discord.gg/Vv2bdC44Ge"
                             className="text-slate-400 hover:text-green-400 transition-colors relative group flex items-center gap-1.5"
                             target="_blank"
                         >
@@ -61,7 +83,7 @@ export default function Footer() {
                         </Link>
 
                         <Link
-                            href={`mailto:${siteConfig.supportEmail}`}
+                            href={`mailto:${settings.supportEmail}`}
                             className="text-slate-400 hover:text-green-400 transition-colors relative group flex items-center gap-1.5"
                         >
                             <Mail size={16} />

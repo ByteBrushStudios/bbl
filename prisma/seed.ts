@@ -6,37 +6,32 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Starting seeding process...');
 
-    // Application default settings - no dependency on config file
     const settings = [
         // General settings
-        { key: 'siteName', value: process.env.SITE_NAME || 'ByteBrush Links', group: 'general' },
-        { key: 'company', value: process.env.COMPANY_NAME || 'ByteBrush Studios', group: 'general' },
-        { key: 'domain', value: process.env.SITE_DOMAIN || 'https://aka.bytebrush.dev', group: 'general' },
-        { key: 'supportEmail', value: process.env.SUPPORT_EMAIL || 'support@bytebrush.dev', group: 'general' },
-        { key: 'enableBasePages', value: process.env.ENABLE_BASE_PAGES || 'true', group: 'general' },
-
-        // Social links
-        { key: 'discordServer', value: process.env.DISCORD_SERVER || 'https://discord.gg/Vv2bdC44Ge', group: 'social' },
-        { key: 'githubRepo', value: process.env.GITHUB_REPO || 'https://github.com/bytebrush/bblinks', group: 'social' },
+        { key: 'siteName', value: 'ByteLinks', group: 'general' },
+        { key: 'company', value: 'ByteBrush Studios', group: 'general' },
+        { key: 'domain', value: 'https://aka.bytebrush.dev', group: 'general' },
+        { key: 'supportEmail', value: 'support@bytebrush.dev', group: 'general' },
+        { key: 'enableBasePages', value: 'true', group: 'general' },
 
         // Authentication settings
-        { key: 'allowedDomains', value: process.env.ALLOWED_DOMAINS || JSON.stringify(['bytebrush.dev']), group: 'auth' },
+        { key: 'allowedDomains', value: JSON.stringify(['bytebrush.dev']), group: 'auth' },
 
         // SEO settings
-        { key: 'metaTitle', value: process.env.META_TITLE || 'ByteBrush Links - Branded Link Management', group: 'seo' },
-        { key: 'metaDescription', value: process.env.META_DESCRIPTION || 'Create and manage branded short links with custom metadata for social media previews.', group: 'seo' },
-        { key: 'metaImageUrl', value: process.env.META_IMAGE_URL || '/og-image.png', group: 'seo' },
+        { key: 'metaTitle', value: 'ByteLinks - Branded Link Management', group: 'seo' },
+        { key: 'metaDescription', value: 'Create and manage branded short links with custom metadata for social media previews.', group: 'seo' },
+        { key: 'metaImageUrl', value: '/bytebrush/logo.png', group: 'seo' },
 
         // Design settings
-        { key: 'favicon', value: process.env.FAVICON || '/favicon.ico', group: 'design' },
-        { key: 'logoUrl', value: process.env.LOGO_URL || '/bytebrush/logo.png', group: 'design' },
-        { key: 'primaryColor', value: process.env.PRIMARY_COLOR || '#22c55e', group: 'design' }, // Green
-        { key: 'secondaryColor', value: process.env.SECONDARY_COLOR || '#3b82f6', group: 'design' }, // Blue
+        { key: 'favicon', value: '/favicon.ico', group: 'design' },
+        { key: 'logoUrl', value: '/bytebrush/logo.png', group: 'design' },
+        { key: 'primaryColor', value: '#22c55e', group: 'design' },
+        { key: 'secondaryColor', value: '#3b82f6', group: 'design' },
 
         // Link settings
-        { key: 'redirectDelay', value: process.env.REDIRECT_DELAY || '0', group: 'links' },
-        { key: 'trackingPixelEnabled', value: process.env.TRACKING_PIXEL_ENABLED || 'true', group: 'links' },
-        { key: 'defaultLinkActive', value: process.env.DEFAULT_LINK_ACTIVE || 'true', group: 'links' },
+        { key: 'redirectDelay', value: '0', group: 'links' },
+        { key: 'trackingPixelEnabled', value: 'true', group: 'links' },
+        { key: 'defaultLinkActive', value: 'true', group: 'links' },
     ];
 
     console.log('Creating default settings...');
@@ -74,7 +69,8 @@ async function main() {
             console.log('Admin user already exists, skipping creation');
         }
     } else {
-        console.log('INITIAL_ADMIN_EMAIL or INITIAL_ADMIN_PASSWORD not set, skipping admin creation');
+        console.log('INITIAL_ADMIN_EMAIL or INITIAL_ADMIN_PASSWORD');
+        return process.exit(1);
     }
 
     console.log('Seeding complete');

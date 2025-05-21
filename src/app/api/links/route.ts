@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { siteConfig } from "@/lib/config";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -52,6 +51,19 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const validatedData = linkSchema.parse(body);
 
+        // Get default link status from settings
+        let defaultActive = true;
+        try {
+            const settingSetting = await prisma.setting.findUnique({
+                where: { key: 'defaultLinkActive' }
+            });
+            if (settingSetting) {
+                defaultActive = settingSetting.value === 'true';
+            }
+        } catch (err) {
+            console.error("Error getting defaultLinkActive setting:", err);
+        }
+
         // Check if slug already exists
         const existingLink = await prisma.link.findUnique({
             where: {
@@ -73,7 +85,7 @@ export async function POST(request: NextRequest) {
                 targetUrl: validatedData.targetUrl,
                 metadata: validatedData.metadata || undefined,
                 createdBy: session.user.id,
-                active: true,
+                active: validatedData.active ?? defaultActive,
             },
         });
 

@@ -1,7 +1,28 @@
+// Server-side settings implementation
 import { PrismaClient, Setting } from '@prisma/client';
 import { cache } from 'react';
 
 const prisma = new PrismaClient();
+
+// Define the default settings
+export const defaultSettings = {
+    siteName: 'ByteBrush Links',
+    company: 'ByteBrush Studios',
+    domain: 'https://aka.bytebrush.dev',
+    supportEmail: 'support@bytebrush.dev',
+    allowedDomains: JSON.stringify(['bytebrush.dev']),
+    enableBasePages: 'true',
+    metaTitle: 'ByteBrush Links - Branded Link Management',
+    metaDescription: 'Create and manage branded short links with custom metadata for social media previews.',
+    metaImageUrl: '/og-image.png',
+    favicon: '/favicon.ico',
+    logoUrl: '/bytebrush/logo.png',
+    primaryColor: '#22c55e',
+    secondaryColor: '#3b82f6',
+    redirectDelay: '0',
+    trackingPixelEnabled: 'true',
+    defaultLinkActive: 'true',
+};
 
 // Type definitions for settings
 export type SiteSettings = {
@@ -9,8 +30,6 @@ export type SiteSettings = {
     company: string;
     domain: string;
     supportEmail: string;
-    discordServer: string;
-    githubRepo: string;
     allowedDomains: string[];
     enableBasePages: boolean;
     metaTitle: string;
@@ -27,33 +46,57 @@ export type SiteSettings = {
 
 // Cache the settings for performance
 export const getSettings = cache(async (): Promise<SiteSettings> => {
-    const settings = await prisma.setting.findMany();
+    try {
+        const settings = await prisma.setting.findMany();
 
-    // Create a map of settings
-    const settingsMap = settings.reduce((map, setting) => {
-        map[setting.key] = setting.value;
-        return map;
-    }, {} as Record<string, string>);
+        // Create a map of settings
+        const settingsMap = settings.reduce((map, setting) => {
+            map[setting.key] = setting.value;
+            return map;
+        }, {} as Record<string, string>);
 
-    return {
-        siteName: settingsMap.siteName || 'ByteLinks',
-        company: settingsMap.company || 'ByteBrush Studios',
-        domain: settingsMap.domain || 'https://aka.bytebrush.dev',
-        supportEmail: settingsMap.supportEmail || 'support@bytebrush.dev',
-        discordServer: settingsMap.discordServer || 'https://discord.gg/Vv2bdC44Ge',
-        allowedDomains: JSON.parse(settingsMap.allowedDomains || '["bytebrush.dev"]'),
-        enableBasePages: settingsMap.enableBasePages === 'true',
-        metaTitle: settingsMap.metaTitle || 'ByteLinks - Branded Link Management',
-        metaDescription: settingsMap.metaDescription || 'Create and manage branded short links with custom metadata for social media previews.',
-        metaImageUrl: settingsMap.metaImageUrl || '/bytebrush/logo.png',
-        favicon: settingsMap.favicon || '/favicon.ico',
-        logoUrl: settingsMap.logoUrl || '/bytebrush/logo.png',
-        primaryColor: settingsMap.primaryColor || '#22c55e',
-        secondaryColor: settingsMap.secondaryColor || '#3b82f6',
-        redirectDelay: parseInt(settingsMap.redirectDelay || '0', 10),
-        trackingPixelEnabled: settingsMap.trackingPixelEnabled === 'true',
-        defaultLinkActive: settingsMap.defaultLinkActive === 'true',
-    };
+        return {
+            siteName: settingsMap.siteName || defaultSettings.siteName,
+            company: settingsMap.company || defaultSettings.company,
+            domain: settingsMap.domain || defaultSettings.domain,
+            supportEmail: settingsMap.supportEmail || defaultSettings.supportEmail,
+            allowedDomains: JSON.parse(settingsMap.allowedDomains || defaultSettings.allowedDomains),
+            enableBasePages: settingsMap.enableBasePages === 'true',
+            metaTitle: settingsMap.metaTitle || defaultSettings.metaTitle,
+            metaDescription: settingsMap.metaDescription || defaultSettings.metaDescription,
+            metaImageUrl: settingsMap.metaImageUrl || defaultSettings.metaImageUrl,
+            favicon: settingsMap.favicon || defaultSettings.favicon,
+            logoUrl: settingsMap.logoUrl || defaultSettings.logoUrl,
+            primaryColor: settingsMap.primaryColor || defaultSettings.primaryColor,
+            secondaryColor: settingsMap.secondaryColor || defaultSettings.secondaryColor,
+            redirectDelay: parseInt(settingsMap.redirectDelay || defaultSettings.redirectDelay),
+            trackingPixelEnabled: settingsMap.trackingPixelEnabled === 'true',
+            defaultLinkActive: settingsMap.defaultLinkActive === 'true',
+        };
+    } catch (error) {
+        console.error("Failed to fetch settings:", error);
+        // Return default settings if there's an error
+        return {
+            siteName: defaultSettings.siteName,
+            company: defaultSettings.company,
+            domain: defaultSettings.domain,
+            supportEmail: defaultSettings.supportEmail,
+            discordServer: defaultSettings.discordServer,
+            githubRepo: defaultSettings.githubRepo,
+            allowedDomains: JSON.parse(defaultSettings.allowedDomains),
+            enableBasePages: defaultSettings.enableBasePages === 'true',
+            metaTitle: defaultSettings.metaTitle,
+            metaDescription: defaultSettings.metaDescription,
+            metaImageUrl: defaultSettings.metaImageUrl,
+            favicon: defaultSettings.favicon,
+            logoUrl: defaultSettings.logoUrl,
+            primaryColor: defaultSettings.primaryColor,
+            secondaryColor: defaultSettings.secondaryColor,
+            redirectDelay: parseInt(defaultSettings.redirectDelay),
+            trackingPixelEnabled: defaultSettings.trackingPixelEnabled === 'true',
+            defaultLinkActive: defaultSettings.defaultLinkActive === 'true',
+        };
+    }
 });
 
 // Update a single setting
@@ -81,27 +124,6 @@ export async function updateSettings(updates: Record<string, string>): Promise<n
 
     return count;
 }
-
-// Create a compatibility layer for the transition period
-// This will be used in places where the old config import is used
-export const siteConfig = {
-    async getConfig(): Promise<SiteSettings> {
-        return await getSettings();
-    },
-
-    // This allows code that expects synchronous access to still work during migration
-    // Will be fetched from DB on server startup and cached
-    _cachedSettings: null as SiteSettings | null,
-
-    get siteName() { return this._cachedSettings?.siteName || 'ByteBrush Links'; },
-    get company() { return this._cachedSettings?.company || 'ByteBrush Studios'; },
-    get domain() { return this._cachedSettings?.domain || 'https://aka.bytebrush.dev'; },
-    get supportEmail() { return this._cachedSettings?.supportEmail || 'support@bytebrush.dev'; },
-    get discordServer() { return this._cachedSettings?.discordServer || 'https://discord.gg/Vv2bdC44Ge'; },
-    get githubRepo() { return this._cachedSettings?.githubRepo || ''; },
-    get allowedDomains() { return this._cachedSettings?.allowedDomains || ['bytebrush.dev']; },
-    get enableBasePages() { return this._cachedSettings?.enableBasePages ?? true; },
-};
 
 // Initialization function to be called at app startup
 export async function initializeSettings(): Promise<void> {

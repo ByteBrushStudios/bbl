@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import authOptions from "@/auth";
-import { siteConfig } from "@/lib/config";
 
 export async function GET() {
     // Check authentication

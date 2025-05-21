@@ -1,13 +1,32 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import { Github, ExternalLink, Discord } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { siteConfig } from "@/lib/config";
 
 export default function OpenSourceCallout() {
   const { scrollYProgress } = useScroll();
   const scale = useTransform(scrollYProgress, [0.7, 0.9], [0.9, 1]);
   const opacity = useTransform(scrollYProgress, [0.7, 0.9], [0.8, 1]);
+  const [discordServer, setDiscordServer] = useState('https://discord.gg/Vv2bdC44Ge');
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.discordServer) {
+            setDiscordServer(data.discordServer);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+      }
+    }
+
+    fetchSettings();
+  }, []);
 
   const buttonVariants = {
     initial: { scale: 1 },
@@ -119,7 +138,7 @@ export default function OpenSourceCallout() {
               className="relative group"
             >
               <a
-                href={siteConfig.discordServer}
+                href={discordServer}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative z-10 inline-flex items-center gap-2 px-6 py-3 overflow-hidden text-white border rounded-md shadow-md bg-gradient-to-r from-gray-800 to-gray-900 border-slate-700"

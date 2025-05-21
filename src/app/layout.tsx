@@ -1,48 +1,41 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { siteConfig } from "@/lib/config";
-import Link from "next/link";
-import { SessionProvider } from "@/components/SessionProvider";
+import { Inter } from 'next/font/google';
+import { JetBrains_Mono } from 'next/font/google';
+import { SessionProvider } from '@/components/SessionProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { SettingsProvider } from '@/components/providers/SettingsProvider';
-import "./globals.css";
+import './globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const fontSans = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const fontMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: siteConfig.siteName,
-  description: `${siteConfig.siteName} - Short link redirection service by ByteBrush Studios`,
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
+export async function generateMetadata() {
+  return {
+    title: 'ByteBrush Links',
+    description: 'Short link redirection service by ByteBrush Studios',
+    icons: {
+      icon: '/favicon.ico'
+    }
+  };
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0c1120]`}
+        className={`${fontSans.variable} ${fontMono.variable} antialiased bg-[#0c1120]`}
       >
         <SessionProvider>
-          <ToastProvider>
-            <SettingsProvider>
+          <SettingsProvider>
+            <ToastProvider>
               <div className="flex flex-col min-h-screen">
                 {children}
               </div>
-            </SettingsProvider>
-          </ToastProvider>
+            </ToastProvider>
+          </SettingsProvider>
         </SessionProvider>
       </body>
     </html>
