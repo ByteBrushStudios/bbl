@@ -11,7 +11,7 @@ We release patches for security vulnerabilities. Which versions are eligible for
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it by sending an email to legal@nodebyte.co.uk. Please include as much information as possible to help us resolve the issue quickly.
+If you discover a security vulnerability, please report it by sending an email to legal@bytebrush.dev. Please include as much information as possible to help us resolve the issue quickly.
 
 When reporting security issues, please provide the following information:
 

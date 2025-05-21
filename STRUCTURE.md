@@ -16,13 +16,22 @@ ByteBrush Links (BBL) follows a standard Next.js 14+ App Router structure. This 
   - `[slug]/` - Dynamic route for shortened links
   - `admin/` - Admin dashboard routes
     - `links/` - Link management pages
+    - `profile/` - User profile settings
+    - `settings/` - System settings management
   - `api/` - API routes
     - `links/` - Links API endpoints
+    - `settings/` - Settings API endpoints
   - `auth/` - Authentication-related pages
+- `src/components/` - Reusable UI components
+  - `layouts/` - Layout components (admin, auth)
+  - `providers/` - Context providers
+  - `static/` - Static components like Header and Footer
+  - `ui/` - UI primitives and shared components
+- `src/hooks/` - Custom React hooks (including useSettings)
 - `src/lib/` - Shared libraries and utilities
-  - `config.ts` - Application configuration
+  - `settings.ts` - Database-driven settings management
   - `prisma.ts` - Prisma client instance
-- `src/types/` - TypeScript type definitions
+- `src/actions/` - Server actions for data mutations
 
 ## Key Files
 
@@ -36,24 +45,28 @@ The project uses Prisma with PostgreSQL. The main models are:
 - `User` - User accounts (admin users)
 - `Link` - Short links with their destinations and metadata
 - `Visit` - Analytics data for link visits
+- `Setting` - Key-value store for application settings
 
-## Routing Structure
+## Configuration System
 
-- `/` - Homepage
-- `/[slug]` - Shortened link redirection
-- `/admin` - Admin dashboard
-- `/admin/links` - Link management
-- `/admin/links/create` - Create new link
-- `/admin/links/[id]/edit` - Edit existing link
-- `/admin/links/[id]/delete` - Delete link confirmation
-- `/api/links` - Links API
-- `/auth/signin` - Sign in page
+The application uses a database-driven configuration system:
+
+- Settings are stored in the database in the `Setting` table
+- Default values are defined in `src/lib/settings.ts`
+- The `useSettings` hook provides client-side access to settings
+- Server-side access is available through the `getSettings` function
 
 ## Authentication Flow
 
-Authentication is handled through NextAuth.js with Discord as the OAuth provider. Admin access can be granted in multiple ways:
+Authentication is now handled via credentials-based authentication with email/password:
 
-1. A super admin can be designated by Discord ID using `auth.superAdminDiscordId` in `config.ts`
-2. A super admin can be designated by email using `auth.superAdminEmail` in `config.ts`
+1. User emails are validated against the allowedDomains setting
+2. Initial admin account is created during database seeding
+3. Role-based permissions control access to admin features
 
-Additionally, email-based access can be restricted to specific domains using the `auth.allowedEmailDomains` array in `config.ts`.
+## Styling and UI
+
+- Tailwind CSS for styling
+- Framer Motion for animations
+- Custom components with responsive design
+- Dark mode by default
