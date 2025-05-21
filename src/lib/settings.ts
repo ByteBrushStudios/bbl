@@ -81,8 +81,6 @@ export const getSettings = cache(async (): Promise<SiteSettings> => {
             company: defaultSettings.company,
             domain: defaultSettings.domain,
             supportEmail: defaultSettings.supportEmail,
-            discordServer: defaultSettings.discordServer,
-            githubRepo: defaultSettings.githubRepo,
             allowedDomains: JSON.parse(defaultSettings.allowedDomains),
             enableBasePages: defaultSettings.enableBasePages === 'true',
             metaTitle: defaultSettings.metaTitle,
