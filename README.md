@@ -113,6 +113,7 @@ ByteBrush Links uses a database-driven configuration system that allows you to c
 > For support, feature requests, or bug reports, please:
 > 1. Check the [GitHub Issues](https://github.com/ByteBrushStudios/bbl/issues)
 > 2. Join our [Discord Server](https://discord.gg/Vv2bdC44Ge)
+> 3. Email us [hey@bytebrush.dev](mailto:hey@bytebrush.dev)
 
 ## License
 
